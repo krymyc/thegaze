@@ -17,8 +17,8 @@ export class OscillatorSource implements AudioSource {
 
   constructor(
     private readonly type: OscillatorType = 'sawtooth',
-    private frequency = 220,
-    private level = 0.35,
+    frequency = 220,
+    level = 0.35,
     engine = GazeAudioEngine.get(),
   ) {
     this.engine = engine;
