@@ -12,6 +12,7 @@ export interface AudioSource {
 export class OscillatorSource implements AudioSource {
   readonly output: GainNode;
   private oscillator: OscillatorNode | null = null;
+  private frequency: number;
   private engine: GazeAudioEngine;
 
   constructor(
@@ -21,6 +22,7 @@ export class OscillatorSource implements AudioSource {
     engine = GazeAudioEngine.get(),
   ) {
     this.engine = engine;
+    this.frequency = frequency;
     this.output = engine.context.createGain();
     this.output.gain.value = Math.max(0, Math.min(1, level));
   }
