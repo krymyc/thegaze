@@ -5,7 +5,7 @@ import { AudioLines, SlidersHorizontal, Mic2, Activity, Power, Upload, Play, Squ
 
 type Module = 'workspace'|'generator'|'processor'|'voice';
 export default function App(){
- const [module,setModule]=useState<Module>('generator');
+ const [module,setModule]=useState<Module>('workspace');
  const [wave,setWave]=useState<OscillatorType>('sine');
  const [freq,setFreq]=useState(220); const [amp,setAmp]=useState(35); const [running,setRunning]=useState(false);
  const [cutoff,setCutoff]=useState(800); const [q,setQ]=useState(0.7); const [file,setFile]=useState<File|null>(null); const [playingFile,setPlayingFile]=useState(false);
