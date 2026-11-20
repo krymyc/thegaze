@@ -38,3 +38,17 @@
 .output-display{padding:19px 12px}
 .patch-status{font-size:10px}
 @media(max-width:900px){.patchboard{height:700px;min-width:1600px}.workspace-bottom{grid-template-columns:1fr}.layout:has(.workspace) main{padding:18px 12px}}
+
+/* Minimal single-oscillator first working build */
+.minimal-synth{max-width:900px;margin:0 auto;padding:10px 0 60px}
+.minimal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+.minimal-head h1{font-size:30px;letter-spacing:-.6px;margin:0 0 7px;font-weight:600}
+.minimal-head p{font-size:13px;color:#718287;margin:0}
+.minimal-card{border:1px solid #1b2a30;background:#0b1114;padding:clamp(20px,4vw,38px);max-width:760px}
+.minimal-display{display:flex;align-items:center;gap:10px;color:#4ce0d0;border-bottom:1px solid #172328;padding-bottom:18px;margin-bottom:24px;font-size:10px;letter-spacing:1.3px}
+.minimal-display strong{margin-left:auto;color:#dce8e8;font-size:24px;font-weight:500;letter-spacing:0}
+.minimal-card .wave-options{margin:12px 0 28px}
+.minimal-card .wave-options button{padding:14px 8px;font-size:10px}
+.minimal-card .slider-row{margin:24px 0}
+.minimal-card .slider-row input{accent-color:#44d4c5}
+.minimal-foot{border-top:1px solid #172328;padding-top:14px;margin-top:26px;font-size:9px;letter-spacing:1px;color:#50666b}
