@@ -36,11 +36,11 @@ All modules use one `GazeAudioEngine` / `AudioContext` per browser session:
 
 ## Build order
 1. Shared engine, effect-rack routing and source-adapter foundations (implemented, not yet integrated).
-2. Effect parameter schemas and live update functions.
+2. Live effect parameter update layer (implemented for prototype effect types).
 3. Processor rebuilt on shared source/rack.
 4. Voice rebuilt on shared graph with raw input meter, processed monitor, recording and playback.
 5. Generate instrument expansion (wavetable, FM operator routing, modulation matrix, polyphony).
 6. Spectral/granular systems and preset library.
 
 ## Current caveats
-The existing Generate panel and Voice Lab still contain module-local audio routing. This architecture is introduced incrementally; the first migration must preserve the currently working Voice recording/playback and monitoring behavior. The current effect implementations are prototypes, not production DSP: ring modulation, reverb mix, feedback safety, and effect parameter automation need refinement before being exposed as a full rack.
+The existing Generate panel and Voice Lab still contain module-local audio routing. This architecture is introduced incrementally; the first migration must preserve the currently working Voice recording/playback and monitoring behavior. The current effect implementations are prototypes, not production DSP: reverb dry/wet routing, feedback safety, distortion quality and full automation need refinement before being exposed as a full rack. Ring-modulator gain routing has been corrected; the effect updater is not yet connected to UI controls.
