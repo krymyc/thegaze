@@ -1,0 +1,52 @@
+import { useState } from 'react';
+import { Plus, Power, Cable, SlidersHorizontal, AudioLines, Mic2, Upload, Trash2, Play, Pause } from 'lucide-react';
+
+type Kind = 'source'|'processor'|'modulator'|'output';
+type NodeDef = { id:string; name:string; type:string; kind:Kind; portsIn:string[]; portsOut:string[]; enabled:boolean; x:number; y:number; color?:string };
+type Patch = { from:string; to:string };
+const initialNodes:NodeDef[]=[
+ {id:'osc1',name:'OSC 1',type:'OSCILLATOR',kind:'source',portsIn:['FM','PITCH'],portsOut:['AUDIO'],enabled:true,x:28,y:34},
+ {id:'osc2',name:'OSC 2',type:'OSCILLATOR',kind:'source',portsIn:['FM','PITCH'],portsOut:['AUDIO'],enabled:true,x:28,y:190},
+ {id:'osc3',name:'OSC 3',type:'OSCILLATOR',kind:'source',portsIn:['FM','PITCH'],portsOut:['AUDIO'],enabled:true,x:28,y:346},
+ {id:'mixer',name:'MIXER',type:'4 CHANNEL',kind:'processor',portsIn:['CH 1','CH 2','CH 3','CH 4'],portsOut:['SUM'],enabled:true,x:310,y:170},
+ {id:'filter',name:'FILTER',type:'MULTIMODE',kind:'processor',portsIn:['AUDIO','CUTOFF','RES'],portsOut:['AUDIO'],enabled:true,x:555,y:170},
+ {id:'lfo1',name:'LFO 1',type:'MODULATOR',kind:'modulator',portsIn:['RATE'],portsOut:['MOD'],enabled:true,x:310,y:390},
+ {id:'fx1',name:'FX / DRIVE',type:'SATURATION',kind:'processor',portsIn:['AUDIO','DRIVE'],portsOut:['AUDIO'],enabled:true,x:790,y:170},
+ {id:'out',name:'OUTPUT',type:'MASTER',kind:'output',portsIn:['L','R'],portsOut:[],enabled:true,x:1035,y:170},
+];
+const initialPatches:Patch[]=[{from:'osc1:AUDIO',to:'mixer:CH 1'},{from:'osc2:AUDIO',to:'mixer:CH 2'},{from:'osc3:AUDIO',to:'mixer:CH 3'},{from:'mixer:SUM',to:'filter:AUDIO'},{from:'filter:AUDIO',to:'fx1:AUDIO'},{from:'fx1:AUDIO',to:'out:L'},{from:'lfo1:MOD',to:'filter:CUTOFF'}];
+const colorFor=(kind:Kind)=>kind==='source'?'#54d9ca':kind==='modulator'?'#d6a35c':kind==='output'?'#8e9ca5':'#7bb5e7';
+function portKey(id:string,p:string){return id+':'+p}
+function NodeCard({node,patches,onToggle,onPort,selectedPort,onDelete}:{node:NodeDef;patches:Patch[];onToggle:(id:string)=>void;onPort:(key:string)=>void;selectedPort:string|null;onDelete:(id:string)=>void}){
+ const c=colorFor(node.kind);
+ return <div className={'rack-node '+node.kind+(node.enabled?'':' disabled')} style={{left:node.x,top:node.y,'--node-accent':c} as React.CSSProperties}>
+  <div className="node-head"><span className="node-led"/><div><small>{node.type}</small><strong>{node.name}</strong></div><button title="Enable module" className={node.enabled?'node-power active':'node-power'} onClick={()=>onToggle(node.id)}><Power size={13}/></button></div>
+  {node.kind==='source'&&<div className="osc-controls"><div className="wave-select"><button className="active">SAW</button><button>SIN</button><button>TRI</button><button>SQR</button></div><div className="mini-control"><span>FREQ</span><strong>{node.id==='osc1'?'110':node.id==='osc2'?'220':'330'} <i>Hz</i></strong><input type="range" min="20" max="1200" defaultValue={node.id==='osc1'?110:node.id==='osc2'?220:330}/></div><div className="knob-row"><Knob label="LEVEL" value={node.id==='osc1'?72:node.id==='osc2'?45:30}/><Knob label="DETUNE" value={node.id==='osc1'?0:node.id==='osc2'?12:24}/></div></div>}
+  {node.id==='mixer'&&<div className="mixer-strip">{['CH 1','CH 2','CH 3','CH 4'].map((ch,i)=><div key={ch}><span>{ch}</span><input type="range" defaultValue={[75,50,32,0][i]}/><b>{[75,50,32,0][i]}</b></div>)}</div>}
+  {node.id==='filter'&&<div className="filter-controls"><div className="filter-type"><button className="active">LP</button><button>HP</button><button>BP</button><button>NOTCH</button></div><div className="knob-row"><Knob label="CUTOFF" value={64}/><Knob label="RESONANCE" value={22}/><Knob label="DRIVE" value={18}/></div></div>}
+  {node.id==='lfo1'&&<div className="lfo-display"><div className="lfo-wave">∿∿∿∿</div><div className="knob-row"><Knob label="RATE" value={30}/><Knob label="DEPTH" value={70}/></div><div className="lfo-rate">0.8 Hz · TRIANGLE · FREE</div></div>}
+  {node.id==='fx1'&&<div className="fx-controls"><div className="fx-type"><span>SOFT CLIP</span><button>CHANGE</button></div><div className="knob-row"><Knob label="DRIVE" value={35}/><Knob label="MIX" value={65}/></div></div>}
+  {node.id==='out'&&<div className="output-display"><div className="meter"><span/><span/></div><div className="out-text">STEREO<br/>MASTER</div><Knob label="LEVEL" value={80}/></div>}
+  <div className="node-ports"><div className="ports-in">{node.portsIn.map(p=><button key={p} className={'port '+(selectedPort===portKey(node.id,p)?'selected':'')} onClick={()=>onPort(portKey(node.id,p))}><i/>{p}</button>)}</div><div className="ports-out">{node.portsOut.map(p=><button key={p} className={'port out '+(selectedPort===portKey(node.id,p)?'selected':'')} onClick={()=>onPort(portKey(node.id,p))}>{p}<i/></button>)}</div></div>
+  <div className="node-foot"><span>{patches.filter(x=>x.from.startsWith(node.id+':')||x.to.startsWith(node.id+':')).length} CONNECTIONS</span><button onClick={()=>onDelete(node.id)} title="Remove module"><Trash2 size={11}/></button></div>
+ </div>
+}
+function Knob({label,value}:{label:string;value:number}){return <div className="knob"><div className="knob-ring" style={{'--knob-angle':(value*2.7-135)+'deg'} as React.CSSProperties}><span/></div><small>{label}</small><b>{value}</b></div>}
+export default function Workspace(){
+ const [nodes,setNodes]=useState(initialNodes);const [patches,setPatches]=useState(initialPatches);const [selectedPort,setSelectedPort]=useState<string|null>(null);const [playing,setPlaying]=useState(false);const [addOpen,setAddOpen]=useState(false);
+ const handlePort=(key:string)=>{if(!selectedPort){setSelectedPort(key);return}if(selectedPort===key){setSelectedPort(null);return}const [a,ap]=selectedPort.split(':');const [b,bp]=key.split(':');const aNode=nodes.find(n=>n.id===a),bNode=nodes.find(n=>n.id===b);if(!aNode||!bNode){setSelectedPort(null);return}const source=aNode.portsOut.includes(ap)?selectedPort:(bNode.portsOut.includes(bp)?key:null);const dest=source===selectedPort?key:source===key?selectedPort:null;if(source&&dest&&!patches.some(p=>p.from===source&&p.to===dest))setPatches(prev=>[...prev,{from:source,to:dest}]);setSelectedPort(null)};
+ const add=(name:string,kind:Kind,ins:string[],outs:string[])=>{const id=name.toLowerCase().replace(/[^a-z0-9]/g,'')+Date.now().toString().slice(-4);setNodes(n=>[...n,{id,name,type:name,kind,portsIn:ins,portsOut:outs,enabled:true,x:80+Math.random()*400,y:430+Math.random()*80}]);setAddOpen(false)};
+ const toggle=(id:string)=>setNodes(ns=>ns.map(n=>n.id===id?{...n,enabled:!n.enabled}:n));
+ const remove=(id:string)=>{if(['osc1','osc2','osc3','mixer','filter','lfo1','fx1','out'].includes(id))return;setNodes(ns=>ns.filter(n=>n.id!==id));setPatches(ps=>ps.filter(p=>!p.from.startsWith(id+':')&&!p.to.startsWith(id+':')))};
+ const clearCable=(index:number)=>setPatches(ps=>ps.filter((_,i)=>i!==index));
+ return <div className="workspace">
+  <div className="workspace-title"><div><div className="eyebrow">MODULAR ENVIRONMENT / PATCH 001</div><h1>Modular Workspace</h1><p>Build your signal path. Connect sources, processors and modulation.</p></div><div className="workspace-actions"><button className="ws-button"><Cable size={14}/> PATCHES <span>{patches.length}</span></button><button className={playing?'ws-play active':'ws-play'} onClick={()=>setPlaying(v=>!v)}>{playing?<Pause size={14}/>:<Play size={14}/>} {playing?'STOP':'PREVIEW'}</button></div></div>
+  <div className="patch-status"><span className="patch-dot"/>{selectedPort?'SELECT A SECOND PORT TO CONNECT':'CLICK AN OUTPUT, THEN AN INPUT TO CREATE A CABLE'}<span className="patch-status-right">AUDIO + MODULATION ROUTING</span></div>
+  <div className="patchboard">
+   <svg className="patch-cables" viewBox="0 0 1280 620" preserveAspectRatio="none"><defs><filter id="glow"><feGaussianBlur stdDeviation="2.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>{patches.map((p,i)=>{const coords:any={'osc1:AUDIO':[260,105],'osc2:AUDIO':[260,261],'osc3:AUDIO':[260,417],'mixer:SUM':[542,275],'filter:AUDIO':[787,275],'fx1:AUDIO':[1022,275],'lfo1:MOD':[542,475]};const ends:any={'mixer:CH 1':[310,220],'mixer:CH 2':[310,246],'mixer:CH 3':[310,272],'mixer:CH 4':[310,298],'filter:AUDIO':[555,220],'filter:CUTOFF':[555,246],'filter:RES':[555,272],'fx1:AUDIO':[790,220],'fx1:DRIVE':[790,246],'out:L':[1035,220],'out:R':[1035,246]};const a=coords[p.from]||[200,500],b=ends[p.to]||[400,500];const mid=(a[0]+b[0])/2;return <g key={i} onClick={()=>clearCable(i)} className="cable-group"><path d={`M ${a[0]} ${a[1]} C ${mid} ${a[1]}, ${mid} ${b[1]}, ${b[0]} ${b[1]}`} className={p.from.includes('lfo')?'cable modulation':'cable'} /><path d={`M ${a[0]} ${a[1]} C ${mid} ${a[1]}, ${mid} ${b[1]}, ${b[0]} ${b[1]}`} className="cable-hit"/></g>})}</svg>
+   {nodes.map(n=><NodeCard key={n.id} node={n} patches={patches} onToggle={toggle} onPort={handlePort} selectedPort={selectedPort} onDelete={remove}/>)}
+  </div>
+  <div className="workspace-bottom"><div className="module-palette"><div className="palette-label">ADD MODULE</div><button onClick={()=>setAddOpen(v=>!v)}><Plus size={15}/> INSERT MODULE</button>{addOpen&&<div className="palette-menu"><button onClick={()=>add('OSCILLATOR','source',['PITCH','FM'],['AUDIO'])}>Oscillator</button><button onClick={()=>add('AUDIO INPUT','source',['GAIN'],['AUDIO'])}>Audio / Mic Input</button><button onClick={()=>add('FILTER','processor',['AUDIO','CUTOFF','RES'],['AUDIO'])}>Filter</button><button onClick={()=>add('DELAY','processor',['AUDIO','TIME','FEEDBACK'],['AUDIO'])}>Delay</button><button onClick={()=>add('REVERB','processor',['AUDIO','MIX'],['AUDIO'])}>Reverb</button><button onClick={()=>add('LFO','modulator',['RATE'],['MOD'])}>LFO</button><button onClick={()=>add('ENVELOPE','modulator',['TRIGGER'],['MOD'])}>Envelope</button></div>}</div><div className="connection-list"><div className="palette-label">ACTIVE PATCHES <span>click cable to remove</span></div>{patches.map((p,i)=><button key={i} onClick={()=>clearCable(i)}><span className={p.from.includes('lfo')?'cable-chip mod':'cable-chip'}/>{p.from.replace(':',' / ')} <b>→</b> {p.to.replace(':',' / ')} <Trash2 size={11}/></button>)}</div></div>
+  <div className="workspace-note"><span><SlidersHorizontal size={13}/> INTERACTIVE DESIGN PROTOTYPE</span><span>PATCHING UI · AUDIO ROUTING NOT YET CONNECTED</span></div>
+ </div>
+}
