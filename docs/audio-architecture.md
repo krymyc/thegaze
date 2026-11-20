@@ -25,8 +25,8 @@ All modules use one `GazeAudioEngine` / `AudioContext` per browser session:
 6. **Modulation** — tremolo, ring modulation, chorus, phaser, flanger, FM.
 7. **Spectral** — FFT analysis, spectral freeze, vocoder (later; requires custom processing).
 
-## Source adapter contract (next implementation stage)
-A source exposes `output`, `start()`, `stop()` and optional `dispose()`. Modules should not create their own unrelated AudioContexts or bypass the shared master chain.
+## Source adapters (foundation implemented)
+`src/audio/sources.ts` now defines a common `AudioSource` contract and initial `OscillatorSource`, `BufferSource` and `MicrophoneSource` adapters. Each exposes an output node and explicit start/stop/dispose lifecycle. Microphone capture owns and releases its MediaStream tracks; it does not monitor to speakers automatically. These adapters are not yet wired into the existing module UI.
 
 ## UI architecture
 - Shared `EffectRack` UI: card-based modules, enable/bypass, reorder, remove, per-effect controls.
@@ -35,13 +35,12 @@ A source exposes `output`, `start()`, `stop()` and optional `dispose()`. Modules
 - Responsive control surfaces; parameter changes should update active nodes when supported.
 
 ## Build order
-1. Shared engine and effect-rack routing foundation.
-2. Source adapters and session lifecycle.
-3. Effect parameter schemas and live update functions.
-4. Processor rebuilt on shared source/rack.
-5. Voice rebuilt on shared graph with raw input meter, processed monitor, recording and playback.
-6. Generate instrument expansion (wavetable, FM operator routing, modulation matrix, polyphony).
-7. Spectral/granular systems and preset library.
+1. Shared engine, effect-rack routing and source-adapter foundations (implemented, not yet integrated).
+2. Effect parameter schemas and live update functions.
+3. Processor rebuilt on shared source/rack.
+4. Voice rebuilt on shared graph with raw input meter, processed monitor, recording and playback.
+5. Generate instrument expansion (wavetable, FM operator routing, modulation matrix, polyphony).
+6. Spectral/granular systems and preset library.
 
 ## Current caveats
 The existing Generate panel and Voice Lab still contain module-local audio routing. This architecture is introduced incrementally; the first migration must preserve the currently working Voice recording/playback and monitoring behavior. The current effect implementations are prototypes, not production DSP: ring modulation, reverb mix, feedback safety, and effect parameter automation need refinement before being exposed as a full rack.
