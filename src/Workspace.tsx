@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { CSSProperties } from 'react';
 import { Plus, Power, Cable, SlidersHorizontal, AudioLines, Mic2, Upload, Trash2, Play, Pause } from 'lucide-react';
 
 type Kind = 'source'|'processor'|'modulator'|'output';
@@ -19,7 +20,7 @@ const colorFor=(kind:Kind)=>kind==='source'?'#54d9ca':kind==='modulator'?'#d6a35
 function portKey(id:string,p:string){return id+':'+p}
 function NodeCard({node,patches,onToggle,onPort,selectedPort,onDelete}:{node:NodeDef;patches:Patch[];onToggle:(id:string)=>void;onPort:(key:string)=>void;selectedPort:string|null;onDelete:(id:string)=>void}){
  const c=colorFor(node.kind);
- return <div className={'rack-node '+node.kind+(node.enabled?'':' disabled')} style={{left:node.x,top:node.y,'--node-accent':c} as React.CSSProperties}>
+ return <div className={'rack-node '+node.kind+(node.enabled?'':' disabled')} style={{left:node.x,top:node.y,'--node-accent':c} as CSSProperties}>
   <div className="node-head"><span className="node-led"/><div><small>{node.type}</small><strong>{node.name}</strong></div><button title="Enable module" className={node.enabled?'node-power active':'node-power'} onClick={()=>onToggle(node.id)}><Power size={13}/></button></div>
   {node.kind==='source'&&<div className="osc-controls"><div className="wave-select"><button className="active">SAW</button><button>SIN</button><button>TRI</button><button>SQR</button></div><div className="mini-control"><span>FREQ</span><strong>{node.id==='osc1'?'110':node.id==='osc2'?'220':'330'} <i>Hz</i></strong><input type="range" min="20" max="1200" defaultValue={node.id==='osc1'?110:node.id==='osc2'?220:330}/></div><div className="knob-row"><Knob label="LEVEL" value={node.id==='osc1'?72:node.id==='osc2'?45:30}/><Knob label="DETUNE" value={node.id==='osc1'?0:node.id==='osc2'?12:24}/></div></div>}
   {node.id==='mixer'&&<div className="mixer-strip">{['CH 1','CH 2','CH 3','CH 4'].map((ch,i)=><div key={ch}><span>{ch}</span><input type="range" defaultValue={[75,50,32,0][i]}/><b>{[75,50,32,0][i]}</b></div>)}</div>}
