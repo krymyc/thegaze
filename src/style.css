@@ -52,3 +52,20 @@
 .minimal-card .slider-row{margin:24px 0}
 .minimal-card .slider-row input{accent-color:#44d4c5}
 .minimal-foot{border-top:1px solid #172328;padding-top:14px;margin-top:26px;font-size:9px;letter-spacing:1px;color:#50666b}
+
+/* Single-page modular layout: no tabs, all three modules remain in the page */
+.layout{display:block!important;grid-template-columns:none!important}
+.layout>main{width:min(1120px,calc(100% - 40px));max-width:1120px;margin:0 auto;padding:28px 0 60px}
+.module-nav{display:flex;flex-wrap:wrap;gap:10px;padding:0 0 26px;margin:0 0 28px;border-bottom:1px solid #1b2b30}
+.module-nav a{display:inline-flex;align-items:center;padding:10px 14px;border:1px solid #22353b;background:#0c1417;color:#6f9298;text-decoration:none;font-size:9px;letter-spacing:1.5px;transition:.2s}
+.module-nav a:hover{border-color:#42d4c5;color:#43d7c7;background:#101b1f}
+.module-section{scroll-margin-top:24px;padding:0 0 46px;margin:0 0 42px;border-bottom:1px solid #17272c}
+.module-section:last-of-type{border-bottom:0;margin-bottom:0}
+.module-section-head{display:flex;align-items:center;gap:15px;margin:0 0 20px}
+.module-index{font:11px/1 monospace;color:#41cfc1;border:1px solid #23474a;padding:10px 9px}
+.module-section-head h2{font-size:18px;letter-spacing:1px;margin:0;font-weight:500;color:#dce8e8}
+.module-section-head p{font-size:11px;color:#698086;margin:5px 0 0}
+.module-section .minimal-synth{max-width:100%;padding:0}
+.module-section .minimal-card{max-width:100%}
+.module-section .heading{margin-top:0}
+@media(max-width:720px){.layout>main{width:calc(100% - 24px);padding-top:18px}.module-nav{gap:6px}.module-nav a{padding:9px 10px;font-size:8px}.module-section{padding-bottom:30px;margin-bottom:28px}}
